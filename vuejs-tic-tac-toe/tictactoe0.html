@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/vue/latest/vue.js"></script>
+    </head>
+    <style>
+        .ticbox {
+            display:block; width:90px; height:90px; margin:5px; float:left; background-color:#ccc;
+            font-size:90px; line-height: 90px; text-align: center; vertical-align: middle;
+        }
+    </style>
+    <body>
+
+        <div id="app">
+            <div v-for="(rowIdx, row) in board" style="width:300px;">
+                <div v-for="(colIdx, item) in row">
+                    <span v-on:click="tic" data-rowIdx="{{ rowIdx }}" data-colIdx="{{colIdx}}" class="ticbox">{{ item.val }}</span>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    players: ['X', 'O'],
+                    playerTurn: 0,
+                    board: [[{val:' '},{val:' '},{val:' '}], 
+                            [{val:' '},{val:' '},{val:' '}], 
+                            [{val:' '},{val:' '},{val:' '}]]
+                },
+                methods: {
+                    tic: function(event){
+                        var row = event.target.attributes['data-rowIdx'].value;
+                        var col = event.target.attributes['data-colIdx'].value;
+
+                        // Use $set rather than accessing the array directly to ensure changes are picked up by vuejs
+                        this.board[row].$set(col, {val: this.players[this.playerTurn]});
+                        
+                        this.playerTurn = (this.playerTurn == 0) ? 1 : 0;
+                    }
+                    
+                    
+                }
+            })
+        </script>
+    </body>
+</html>
