@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/vue/latest/vue.js"></script>
+    </head>
+    <style>
+        .ticbox {
+            display:block; width:90px; height:90px; margin:5px; float:left; background-color:#ccc;
+            font-size:90px; line-height: 90px; text-align: center; vertical-align: middle;
+        }
+        .winner {
+            color: red;
+        }
+    </style>
+    <body>
+
+        <div id="app">
+            <p>Player's Turn: {{ this.players[this.playerTurn] }} {{ winner }}</p>
+            <button v-on:click="restartGame">Restart Game</button>
+
+            <div v-for="(rowIdx, row) in board" style="width:300px;">
+                <div v-for="(colIdx, item) in row">
+                    <span v-on:click="tic" data-rowIdx="{{ rowIdx }}" data-colIdx="{{colIdx}}" class="ticbox {{item.win}}" >{{ item.val }}</span>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+            var vm = new Vue({
+                el: '#app',
+                data: {
+                    players: ['X', 'O'],
+                    playerTurn: 0,
+                    winner: '',
+                    board: [[{},{},{}],[{},{},{}],[{},{},{}]]
+                },
+                methods: {
+                    defaultBoard: function(){
+                        var b = [], r = [];
+                        for(i = 0; i < 3; i++){
+                            r.push({val: '', win: ''});
+                        }
+                        b.push(r);b.push(r);b.push(r);
+                        return b;
+                    },
+                    restartGame: function(){
+                        this.board = this.defaultBoard();
+                        this.winner = '';
+                    },
+                    tic: function(event){
+                        if(this.winner == '') {
+                            var row = event.target.attributes['data-rowIdx'].value;
+                            var col = event.target.attributes['data-colIdx'].value;
+
+                            if(this.board[row][col].val == '' || this.board[row][col].val == undefined) {
+                                // Use $set rather than accessing the array directly to ensure changes are picked up by vuejs
+                                this.board[row].$set(col, {val: this.players[this.playerTurn], win: ''});
+
+                                var boardStatus = this.scoreBoard();
+                                if (boardStatus.score == 100) {
+                                    this.winGame(boardStatus.winningSet);
+                                    return;
+                                }
+
+                                this.playerTurn = (this.playerTurn == 0) ? 1 : 0;
+                            }
+                        }
+                    },
+                    scoreBoard: function(){
+                        // Returns 100 if current player wins
+                        var score = 0;
+                        var sets = [];
+                        var winningSet = null;
+                        var player = this.players[this.playerTurn];
+                        
+                        // Look for three in a row horizontally
+                        for(row = 0; row < 3; row++){
+                            var newSet = [];
+                            for(col = 0; col < 3; col++){
+                                newSet.push(this.board[row][col]);
+                            }
+                            sets.push(newSet);
+                        }
+                        
+                        // Look for three in a row vertically
+                        for(col = 0; col < 3; col++){
+                            var newSet = [];
+                            for(row = 0; row < 3; row++){
+                                newSet.push(this.board[row][col]);
+                            }
+                            sets.push(newSet);
+                        }
+                        
+                        // Look for three in a row diagonally
+                        var diagonal1 = [this.board[0][0], this.board[1][1], this.board[2][2]];
+                        var diagonal2 = [this.board[2][0], this.board[1][1], this.board[0][2]];
+                        sets.push(diagonal1);
+                        sets.push(diagonal2);
+
+                        sets.forEach(function(set){
+                            var consecutive = 0;
+                            set.forEach(function(item){
+                                consecutive += ((item.val == player) ? 1 : 0);
+                            });
+                            if(consecutive == 3) { 
+                                score = 100;
+                                winningSet = set;
+                            }
+                        });
+                           
+                        
+                        return {score: score, winningSet: winningSet};
+                    },
+                    winGame: function(winningSet) {
+                        this.winner = 'Winner!'
+                        
+                        winningSet.forEach(function(el){
+                            el.win = 'winner'
+                        });
+                    }
+                    
+                }
+            });
+        </script>
+    </body>
+</html>
