@@ -35,11 +35,13 @@
                 },
                 methods: {
                     defaultBoard: function(){
-                        var b = [], r = [];
-                        for(i = 0; i < 3; i++){
-                            r.push({val: '', win: ''});
+                        var b = [[],[],[]];
+                        for(var i = 0; i < 3; i++){
+                            for(var j = 0; j < 3; j++){
+                                b[i].$set(j, {val: null, win: null});
+                            }
+
                         }
-                        b.push(r);b.push(r);b.push(r);
                         return b;
                     },
                     restartGame: function(){
