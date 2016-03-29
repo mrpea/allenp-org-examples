@@ -1,0 +1,75 @@
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/vue/latest/vue.js"></script>
+</head>
+<style>
+    #app { margin: 50px 0px 0px 50px; }
+    #tabs span { float: left; width: 100px; margin-left: 15px; text-align: center; padding-bottom: 15px;}
+    .active { border-bottom: 3px solid #C6CBCC;}
+    .inactive { border-bottom: 5px solid white;}
+    .form { float: left; margin-top: 20px; font-size: 120%; clear: both; width: 300px; background-color: #F2F8F9; border-radius: 9px; padding: 25px;}
+    .form .greeting { display: block; font-size: 150%; margin-left: 0px; margin-bottom: 30px; }
+    .form input {float: right; width: 175px;}
+    .form input[type="submit"] { width: 75px; margin-left: 125px; float: none;}
+</style>
+<body>
+
+<div id="app">
+    <div v-for="(langIdx, lang) in translations" id="tabs">
+        <span v-on:mouseover="loadLang" language="{{lang.code}}" v-bind:class="i18n.language == lang.language ? 'active' : 'inactive'">{{{lang.language}}}</span>
+    </div>
+    <div class="form">
+        <span class="greeting">{{i18n.hello}}</span>
+        
+        {{{i18n.name}}}: <input id="name" /><br/><br/>
+        {{i18n.comment}}: <input id="comment" /><br/><br/>
+        <input type="submit" value="{{i18n.save}}"/>
+    </div>
+</div>
+
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            i18n: {},
+            translations: {
+                en: {
+                    'code': 'en',
+                    'language': 'English',
+                    'hello': 'Hello!',
+                    'name': 'Name',
+                    'comment': 'Comment',
+                    'save': 'Save'
+                },
+                de: {
+                    'code': 'de',
+                    'language': 'Deutsche',
+                    'hello': 'Guten Tag',
+                    'name': 'Name',
+                    'comment': 'Kommentar',
+                    'save': 'Sparen'
+                },
+                fr: {
+                    'code': 'fr',
+                    'language': 'Français',
+                    'hello': 'Bonjour',
+                    'name': 'Prénom',
+                    'comment': 'Commentaire',
+                    'save': 'Enregistrer'
+                }
+            },
+            selectedLanguage: 'en'
+            
+        },
+        methods: {
+            loadLang: function(event){
+                var lang = event.target.attributes['language'].value;
+                this.i18n = this.translations[lang];
+            }
+        }
+    });
+    
+    // Set english as the default
+    vm.i18n = vm.translations['en'];
+
+</script>
