@@ -1,0 +1,67 @@
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/vue/latest/vue.js"></script>
+</head>
+<style>
+    #app { margin: 50px 0px 0px 50px; }
+    *:focus {
+        outline: none;
+    }
+    .ticbox {
+        display:block; width:90px; height:90px; margin:5px; float:left; background-color:#efefef;
+        font-size:90px; line-height: 90px; text-align: center; vertical-align: middle;
+    }
+</style>
+<body>
+
+<div id="app" tabindex="0"
+     v-on:keydown.up="movePlayer(0,-1)"
+     v-on:keydown.down="movePlayer(0,1)"
+     v-on:keydown.left="movePlayer(-1,0)"
+     v-on:keydown.right="movePlayer(1,0)"
+     v-on:keydown.space="movePlayer(0,0)"
+        >
+    <div v-for="(rowIdx, row) in board" style="width:300px;">
+        <div v-for="(colIdx, item) in row">
+            <span class="ticbox" >{{ item.val || ' ' }}</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            board: [[{},{},{}],[{},{val: '@'},{}],[{},{},{}]],
+            player: {
+                x: 1,
+                y: 1,
+                char: '@'
+            }
+            
+        },
+        methods: {
+            movePlayer: function(x,y){
+                if(this.player.x + x >= 0 && this.player.x + x < this.board[0].length){ this.player.x += x; }
+                if(this.player.y + y >= 0 && this.player.y + y < this.board.length){ this.player.y += y; }
+                this.board = this.populateBoard();
+            },
+            defaultBoard: function(){
+                var b = [[],[],[]];
+                for(var i = 0; i < 3; i++){
+                    for(var j = 0; j < 3; j++){
+                        b[i].$set(j, {val: null, win: null});
+                    }
+
+                }
+                return b;
+            },
+            populateBoard: function(){
+                var board = this.defaultBoard();
+                board[this.player.y].$set(this.player.x, {val: this.player.char});
+                return board;
+            }
+        }
+    });
+
+</script>
