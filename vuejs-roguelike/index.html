@@ -8,8 +8,8 @@
         outline: none;
     }
     .ticbox {
-        display:block; width:90px; height:90px; margin:5px; float:left; background-color:#efefef;
-        font-size:90px; line-height: 90px; text-align: center; vertical-align: middle;
+        display:block; width:45px; height:45px; margin:5px; float:left; background-color:#efefef;
+        font-size:45px; line-height: 45px; text-align: center; vertical-align: middle;
     }
 </style>
 <body>
@@ -21,7 +21,7 @@
      v-on:keydown.right="movePlayer(1,0)"
      v-on:keydown.space="movePlayer(0,0)"
         >
-    <div v-for="(rowIdx, row) in board" style="width:300px;">
+    <div v-for="(rowIdx, row) in board" style="width:600px;">
         <div v-for="(colIdx, item) in row">
             <span class="ticbox" >{{ item.val || ' ' }}</span>
         </div>
@@ -32,7 +32,7 @@
     var vm = new Vue({
         el: '#app',
         data: {
-            board: [[{},{},{}],[{},{val: '@'},{}],[{},{},{}]],
+            board: [],
             player: {
                 x: 1,
                 y: 1,
@@ -47,12 +47,13 @@
                 this.board = this.populateBoard();
             },
             defaultBoard: function(){
-                var b = [[],[],[]];
-                for(var i = 0; i < 3; i++){
-                    for(var j = 0; j < 3; j++){
-                        b[i].$set(j, {val: null, win: null});
+                var size = 10;
+                var b = new Array(size);
+                for (var i = 0; i < size; i++) {
+                    b[i] = new Array(size);
+                    for(var j = 0; j < size; j++){
+                        b[i].$set(j, {val: null});
                     }
-
                 }
                 return b;
             },
@@ -63,5 +64,7 @@
             }
         }
     });
+    
+    vm.board = vm.populateBoard();
 
 </script>
