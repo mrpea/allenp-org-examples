@@ -37,14 +37,21 @@
                 x: 1,
                 y: 1,
                 char: '@'
-            }
+            },
+            obstacles: []
             
         },
         methods: {
             movePlayer: function(x,y){
-                if(this.player.x + x >= 0 && this.player.x + x < this.board[0].length){ this.player.x += x; }
-                if(this.player.y + y >= 0 && this.player.y + y < this.board.length){ this.player.y += y; }
-                this.board = this.populateBoard();
+                if(this.player.x + x >= 0 
+                        && this.player.x + x < this.board[0].length 
+                        && this.obstacles[this.player.x + x][this.player.y + y] != 1){ this.player.x += x; }
+                
+                if(this.player.y + y >= 0
+                        && this.player.y + y < this.board.length
+                        && this.obstacles[this.player.x + x][this.player.y + y] != 1){ this.player.y += y; }
+                
+                this.board = this.displayBoard();
             },
             defaultBoard: function(){
                 var size = 10;
@@ -57,14 +64,31 @@
                 }
                 return b;
             },
-            populateBoard: function(){
+            displayBoard: function(){
                 var board = this.defaultBoard();
                 board[this.player.y].$set(this.player.x, {val: this.player.char});
+
+                // Obstacles
+                for (var i = 0; i < this.obstacles.length; i++) {
+                    for (var j = 0; j < this.obstacles[i].length; j++) {
+                        if (this.obstacles[i][j] === 1) {
+                            board[j].$set(i, {val: '0'});
+                        }
+                    }
+                }
                 return board;
+            },
+            initBoard: function(){
+                this.board = this.defaultBoard();
+                this.obstacles = this.defaultBoard();
+                this.obstacles[2][7] = 1;
+                this.obstacles[8][1] = 1;
             }
         }
     });
     
-    vm.board = vm.populateBoard();
+    vm.initBoard();
+    vm.board = vm.displayBoard();
+    
 
 </script>
