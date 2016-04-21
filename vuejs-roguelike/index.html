@@ -32,57 +32,80 @@
     var vm = new Vue({
         el: '#app',
         data: {
+            roomSize: 10,
             board: [],
             player: {
                 x: 1,
                 y: 1,
                 char: '@'
             },
-            obstacles: []
+            obstacles: [],
+            monsters: []
             
         },
         methods: {
             movePlayer: function(x,y){
-                if(this.player.x + x >= 0 
-                        && this.player.x + x < this.board[0].length 
-                        && this.obstacles[this.player.x + x][this.player.y + y] != 1){ this.player.x += x; }
+                var newX = this.player.x + x;
+                var newY = this.player.y + y;
+                if(newX >= 0 && newX < this.board[0].length 
+                   && newY >= 0  && newY < this.board.length
+                   && this.obstacles[newX][newY] != 1){
+                       if(this.monsters[newX][newY] != null){
+                           this.monsters[newX][newY] = this.hitMonster(this.monsters[newX][newY]);
+                       } else {
+                           this.player.x = newX;
+                           this.player.y = newY;
+                       }
+                }
                 
-                if(this.player.y + y >= 0
-                        && this.player.y + y < this.board.length
-                        && this.obstacles[this.player.x + x][this.player.y + y] != 1){ this.player.y += y; }
                 
                 this.board = this.displayBoard();
             },
-            defaultBoard: function(){
-                var size = 10;
-                var b = new Array(size);
-                for (var i = 0; i < size; i++) {
-                    b[i] = new Array(size);
-                    for(var j = 0; j < size; j++){
-                        b[i].$set(j, {val: null});
+            blankBoard: function(){
+                var b = new Array(this.roomSize);
+                for (var i = 0; i < this.roomSize; i++) {
+                    b[i] = new Array(this.roomSize);
+                    for(var j = 0; j < this.roomSize; j++){
+                        b[i][j] = null;
                     }
                 }
                 return b;
             },
             displayBoard: function(){
-                var board = this.defaultBoard();
-                board[this.player.y].$set(this.player.x, {val: this.player.char});
-
-                // Obstacles
-                for (var i = 0; i < this.obstacles.length; i++) {
-                    for (var j = 0; j < this.obstacles[i].length; j++) {
-                        if (this.obstacles[i][j] === 1) {
-                            board[j].$set(i, {val: '0'});
+                var board = this.blankBoard();
+                
+                for (var i = 0; i < board.length; i++) {
+                    for (var j = 0; j < board[i].length; j++) {
+                        var val = null;
+                        if (this.obstacles[i][j] != null) {
+                            val = this.obstacles[i][j];
                         }
+
+                        if (this.monsters[i][j] != null) {
+                            val = this.monsters[i][j];
+                        }
+                        
+                        // Always write a value for each space in the board, use null if no other thing
+                        board[j].$set(i, {val: val});
                     }
                 }
+
+                board[this.player.y].$set(this.player.x, {val: this.player.char});
                 return board;
             },
             initBoard: function(){
-                this.board = this.defaultBoard();
-                this.obstacles = this.defaultBoard();
-                this.obstacles[2][7] = 1;
-                this.obstacles[8][1] = 1;
+                this.board = this.blankBoard();
+                this.obstacles = this.blankBoard();
+                this.obstacles[2][7] = '0';
+                this.obstacles[8][1] = '0';
+                this.monsters = this.blankBoard();
+                this.monsters[1][5] = 'c';
+            },
+            hitMonster: function(monster){
+                monster = monster.charCodeAt(0) - 96; // Convert to int
+                monster--; // Decrement;
+                monster = (monster <= 0) ? null : String.fromCharCode(96 + monster); // Either null if dead or next letter down
+                return monster;
             }
         }
     });
