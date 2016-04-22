@@ -46,7 +46,11 @@
                     'PLAY': "",
                     'DEAD': "DEAD! Play again?",
                     'WIN': "You're the winner!"
-                }
+                },
+                monsterType: 'a',
+                monsterNum: 3,
+                healthNum: 2,
+                obstacleNum: 2
             },
             roomSize: 10,
             board: [],
@@ -139,17 +143,9 @@
             },
             initBoard: function(){
                 this.game.status = 'PLAY';
-                this.obstacles = this.blankBoard();
-                this.obstacles[2][7] = '&Delta;';
-                this.obstacles[8][1] = '&Delta;';
-                this.monsters = this.blankBoard();
-                this.monsters[1][5] = 'c';
-                this.monsters[5][1] = 'c';
-                this.health = this.blankBoard();
-                this.health[6][6] = '&hearts;';
-                this.health[3][9] = '&hearts;';
-                this.stunned = this.blankBoard();
-                
+                this.health = null;
+                this.game.monsterType = 'a';
+                this.initLevel(this.game.monsterType, this.game.monsterNum, this.game.obstacleNum, this.game.healthNum);
                 this.player.x = 1;
                 this.player.y = 1;
                 this.player.health = 5;
@@ -157,6 +153,39 @@
                 this.board = this.displayBoard();
 
                 document.getElementById("app").focus();
+            },
+            initLevel: function(monsterType, numMonsters, numObstacles, numHealth){
+                this.monsters = this.blankBoard();
+                for(var i = 0; i < numMonsters; i++){
+                    var x = Math.floor((Math.random() * this.monsters[0].length));
+                    var y = Math.floor((Math.random() * this.monsters.length));
+                    this.monsters[x][y] = monsterType;
+                }
+                
+                if(numObstacles != null && numObstacles > 0) {
+                    this.obstacles = this.blankBoard();
+                    for (var i = 0; i < numObstacles; i++) { //Don't put obstacles on the edge
+                        var x = 1 + Math.floor((Math.random() * (this.obstacles[0].length - 2)));
+                        var y = 1 + Math.floor((Math.random() * (this.obstacles.length - 2)));
+                        this.obstacles[x][y] = '&Delta;';
+                    }
+                }
+                
+                //Only init health at the start of the game
+                if(this.health == null || this.health[0] == null){
+                    this.health = this.blankBoard();
+                }
+                for(var i = 0; i < numHealth; i++){
+                    var x = Math.floor((Math.random() * this.health[0].length));
+                    var y = Math.floor((Math.random() * this.health.length));
+                    if(this.obstacles[x][y] == null) { // Don't put health on obstacles
+                        this.health[x][y] = '&hearts;';
+                    } else {
+                        i--;
+                    }
+                }
+                
+                this.stunned = this.blankBoard();
             },
             hitMonster: function(monster){
                 monster = monster.charCodeAt(0) - 96; // Convert to int
@@ -169,11 +198,13 @@
             },
             runTurn: function(){
                 var movedMonsters = this.blankBoard();
+                var numMonsters = 0;
                 // Move each monster towards the player
                 for (var i = 0; i < this.board.length; i++) {
                     for (var j = 0; j < this.board[i].length; j++) {
                         if (this.monsters[i][j] != null) {
                             var tX = i, tY = j;
+                            numMonsters++;
                             if(this.stunned[i][j] == null){
                                 if(this.player.x > i && this.obstacles[i+1][j] == null){ tX = i+1; tY = j; }
                                 if(this.player.x < i && this.obstacles[i-1][j] == null){ tX = i-1; tY = j; }
@@ -192,11 +223,12 @@
                                 tX = i; tY = j;
                             }
 
-                            if(movedMonsters[tX][tY] != null) {
+                            if(movedMonsters[tX][tY] != null || this.monsters[tX][tY] != null) {
                                 tX = i; tY = j;
                             }
 
                             movedMonsters[tX][tY] = this.monsters[i][j];
+                            this.monsters[i][j] = null;
                         }
                     }
                 }
@@ -209,6 +241,17 @@
                     this.game.status = 'DEAD';
                 }
                 
+                if(numMonsters == 0){
+                    if(this.game.monsterType == 'd') {
+                        this.game.status = 'WIN';
+                    } else {
+                        this.game.monsterType = String.fromCharCode(this.game.monsterType.charCodeAt(0) + 1);
+
+                        this.initLevel(this.game.monsterType, this.game.monsterNum, 0, this.game.healthNum);
+                        this.board = this.displayBoard();
+                    }
+                    
+                }
                 
             }
         }
