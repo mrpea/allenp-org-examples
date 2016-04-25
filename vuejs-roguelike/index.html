@@ -18,11 +18,11 @@
 <body>
 
 <div id="app" tabindex="0"
-     v-on:keydown.up="movePlayer(0,-1)"
-     v-on:keydown.down="movePlayer(0,1)"
-     v-on:keydown.left="movePlayer(-1,0)"
-     v-on:keydown.right="movePlayer(1,0)"
-     v-on:keydown.space="movePlayer(0,0)"
+     v-on:keydown.up.stop.prevent="movePlayer(0,-1)"
+     v-on:keydown.down.stop.prevent="movePlayer(0,1)"
+     v-on:keydown.left.stop.prevent="movePlayer(-1,0)"
+     v-on:keydown.right.stop.prevent="movePlayer(1,0)"
+     v-on:keydown.space.stop.prevent="movePlayer(0,0)"
         >
     <div v-for="(rowIdx, row) in board" style="width:600px;">
         <div v-for="(colIdx, item) in row">
